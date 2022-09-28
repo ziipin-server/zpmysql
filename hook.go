@@ -30,6 +30,19 @@ type Hook interface {
 	AfterProcess(c *HookContext) error
 }
 
+type ErrorListener func(error)
+
+func (l ErrorListener) BeforeProcess(c *HookContext) (context.Context, error) {
+	return c.Ctx, nil
+}
+
+func (l ErrorListener) AfterProcess(c *HookContext) error {
+	if c.Err != nil {
+		l(c.Err)
+	}
+	return nil
+}
+
 func BeforeProcess(c *HookContext) (context.Context, error) {
 	ctx := c.Ctx
 	for _, h := range hooks {
@@ -55,6 +68,10 @@ func AfterProcess(c *HookContext) error {
 
 func AddHook(hook Hook) {
 	hooks = append(hooks, hook)
+}
+
+func AddListener(listener func(error)) {
+	hooks = append(hooks, ErrorListener(listener))
 }
 
 var (
