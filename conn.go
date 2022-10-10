@@ -20,7 +20,7 @@ type zpConn struct {
 func (c *zpConn) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
 	hookCtx := NewHookContext(ctx, "PREPARE", nil)
 	ctx, _ = BeforeProcess(hookCtx)
-	stmt, err := c.PrepareContext(ctx, query)
+	stmt, err := c.conn.PrepareContext(ctx, query)
 	hookCtx.End(ctx, err)
 	AfterProcess(hookCtx)
 	return newStmt(stmt, query), err
